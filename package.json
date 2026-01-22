@@ -1,0 +1,19 @@
+{
+  "name": "hobi-reels-ad",
+  "version": "2.0.0",
+  "description": "Instagram Reels ad for Hobi - Kuwait hobby marketplace",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "build": "remotion render HobiReelsAd out/hobi-reels-ad.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.2.0"
+  }
+}
