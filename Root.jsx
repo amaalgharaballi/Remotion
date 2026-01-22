@@ -7,10 +7,10 @@ export const RemotionRoot = () => {
       <Composition
         id="HobiReelsAd"
         component={HobiReelsAd}
-        durationInFrames={450} // 15 seconds at 30fps
+        durationInFrames={255} // 8.5 seconds at 30fps
         fps={30}
         width={1080}
-        height={1920}
+        height={1080}
         defaultProps={{}}
       />
     </>
