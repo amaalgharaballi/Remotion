@@ -1,312 +1,146 @@
 import React from 'react';
-import { AbsoluteFill, useCurrentFrame, interpolate, Sequence, spring, useVideoConfig, Easing } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, interpolate, Sequence, Easing } from 'remotion';
 
 export const HobiReelsAd = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
 
-  // Exact Hobi brand colors from screenshots
+  // Premium brand colors - exact spec
   const colors = {
     primaryOrange: '#F36A21',
-    darkOrange: '#D94A2A',
-    lightPeach: '#FFF6EF',
-    cardPink: '#FFE6D6',
+    accentOrange: '#E9540D',
+    softHighlight: '#FFE6D6',
+    background: '#FFF6EF',
     primaryText: '#2B2B2B',
     mutedText: '#8A8A8A',
-    greenAccent: '#4CAF50',
   };
 
-  // Scene durations at 30fps - FAST PACED for Reels
-  const INTRO_DURATION = 45;        // 1.5s - Logo reveal
-  const PHONE_1_DURATION = 75;      // 2.5s - Browse hobbies
-  const PHONE_2_DURATION = 75;      // 2.5s - Services showcase
-  const PHONE_3_DURATION = 75;      // 2.5s - Credits/features
-  const CTA_DURATION = 105;         // 3.5s - Call to action
-  const OUTRO_DURATION = 75;        // 2.5s - Final logo
+  // Scene durations at 30fps - fast, intentional pacing
+  const SCENE_1 = 45;   // 1.5s - Value prop
+  const SCENE_2 = 75;   // 2.5s - Categories
+  const SCENE_3 = 75;   // 2.5s - Actions
+  const SCENE_4 = 60;   // 2s   - CTA
 
   return (
-    <AbsoluteFill style={{ backgroundColor: colors.lightPeach }}>
+    <AbsoluteFill style={{ backgroundColor: colors.background }}>
       
-      {/* Intro: Logo Reveal */}
-      <Sequence from={0} durationInFrames={INTRO_DURATION}>
-        <IntroScene frame={frame} colors={colors} fps={fps} />
+      {/* Scene 1: Value Proposition */}
+      <Sequence from={0} durationInFrames={SCENE_1}>
+        <Scene1 frame={frame} colors={colors} />
       </Sequence>
 
-      {/* Scene 1: Browse Hobbies Phone */}
-      <Sequence from={INTRO_DURATION} durationInFrames={PHONE_1_DURATION}>
-        <BrowseScene frame={frame - INTRO_DURATION} colors={colors} fps={fps} />
+      {/* Scene 2: Categories */}
+      <Sequence from={SCENE_1} durationInFrames={SCENE_2}>
+        <Scene2 frame={frame - SCENE_1} colors={colors} />
       </Sequence>
 
-      {/* Scene 2: Services Phone */}
-      <Sequence from={INTRO_DURATION + PHONE_1_DURATION} durationInFrames={PHONE_2_DURATION}>
-        <ServicesScene frame={frame - INTRO_DURATION - PHONE_1_DURATION} colors={colors} fps={fps} />
-      </Sequence>
-
-      {/* Scene 3: Features Phone */}
-      <Sequence from={INTRO_DURATION + PHONE_1_DURATION + PHONE_2_DURATION} durationInFrames={PHONE_3_DURATION}>
-        <FeaturesScene frame={frame - INTRO_DURATION - PHONE_1_DURATION - PHONE_2_DURATION} colors={colors} fps={fps} />
+      {/* Scene 3: Core Actions */}
+      <Sequence from={SCENE_1 + SCENE_2} durationInFrames={SCENE_3}>
+        <Scene3 frame={frame - SCENE_1 - SCENE_2} colors={colors} />
       </Sequence>
 
       {/* Scene 4: CTA */}
-      <Sequence from={INTRO_DURATION + PHONE_1_DURATION + PHONE_2_DURATION + PHONE_3_DURATION} durationInFrames={CTA_DURATION}>
-        <CTAScene frame={frame - INTRO_DURATION - PHONE_1_DURATION - PHONE_2_DURATION - PHONE_3_DURATION} colors={colors} fps={fps} />
-      </Sequence>
-
-      {/* Outro: Logo */}
-      <Sequence from={INTRO_DURATION + PHONE_1_DURATION + PHONE_2_DURATION + PHONE_3_DURATION + CTA_DURATION} durationInFrames={OUTRO_DURATION}>
-        <OutroScene frame={frame - INTRO_DURATION - PHONE_1_DURATION - PHONE_2_DURATION - PHONE_3_DURATION - CTA_DURATION} colors={colors} fps={fps} />
+      <Sequence from={SCENE_1 + SCENE_2 + SCENE_3} durationInFrames={SCENE_4}>
+        <Scene4 frame={frame - SCENE_1 - SCENE_2 - SCENE_3} colors={colors} />
       </Sequence>
 
     </AbsoluteFill>
   );
 };
 
-// Intro Scene - Animated Logo Reveal
-const IntroScene = ({ frame, colors, fps }) => {
-  const progress = spring({
+// Scene 1: Value Proposition - Hard, Fast, Clear
+const Scene1 = ({ frame, colors }) => {
+  // Sharp opacity in - no easing, pure linear
+  const opacity = interpolate(
     frame,
-    fps,
-    config: {
-      damping: 200,
-      mass: 0.5,
-    },
-  });
-
-  const scale = interpolate(progress, [0, 1], [0.5, 1]);
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
-  
-  // Rotating circles animation
-  const rotation = interpolate(frame, [0, 45], [0, 360]);
+    [0, 8],
+    [0, 1],
+    {
+      extrapolateRight: 'clamp',
+      easing: Easing.linear,
+    }
+  );
 
   return (
-    <AbsoluteFill style={{
-      background: `linear-gradient(135deg, ${colors.primaryOrange} 0%, ${colors.darkOrange} 100%)`,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      {/* Animated background circles */}
-      <div style={{
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-      }}>
-        <AnimatedCircle size={400} top="10%" left="70%" rotation={rotation} opacity={0.1} />
-        <AnimatedCircle size={600} top="60%" left="20%" rotation={-rotation} opacity={0.15} />
-      </div>
-
-      {/* Logo */}
-      <div style={{
-        transform: `scale(${scale})`,
-        opacity,
-        textAlign: 'center',
-      }}>
-        <HobiLogo size={180} color="white" />
-        <div style={{
-          marginTop: 30,
-          fontSize: 32,
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 80,
+      }}
+    >
+      <h1
+        style={{
           fontFamily: 'Poppins, sans-serif',
-          fontWeight: 400,
-          color: 'white',
-          opacity: 0.9,
-        }}>
-          Your hobby marketplace
-        </div>
-      </div>
+          fontSize: 68,
+          fontWeight: 600,
+          color: colors.primaryText,
+          lineHeight: 1.1,
+          textAlign: 'center',
+          margin: 0,
+          opacity,
+          letterSpacing: '-0.02em',
+        }}
+      >
+        A marketplace for<br />serious hobbies
+      </h1>
     </AbsoluteFill>
   );
 };
 
-// Browse Scene - Phone showing browse interface
-const BrowseScene = ({ frame, colors, fps }) => {
-  const phoneProgress = spring({
-    frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const phoneY = interpolate(phoneProgress, [0, 1], [100, 0]);
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
-
+// Scene 2: Categories - Precision UI
+const Scene2 = ({ frame, colors }) => {
   const categories = [
-    { icon: '🎬', name: 'Film', delay: 15 },
-    { icon: '📷', name: 'Digital Cameras', delay: 25 },
-    { icon: '🖨️', name: '3D Printing', delay: 35 },
-    { icon: '✍️', name: 'Trading Cards', delay: 45 },
+    { name: 'Film', delay: 0 },
+    { name: 'Digital Cameras', delay: 8 },
+    { name: '3D Printing', delay: 16 },
+    { name: 'Autographed Collectables & Trading Cards', delay: 24 },
   ];
 
-  return (
-    <AbsoluteFill style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 60,
-    }}>
-      {/* Text above phone */}
-      <div style={{
-        position: 'absolute',
-        top: 150,
-        left: 0,
-        right: 0,
-        textAlign: 'center',
-        opacity,
-      }}>
-        <h2 style={{
-          fontSize: 64,
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: 600,
-          color: colors.primaryOrange,
-          margin: 0,
-          marginBottom: 10,
-        }}>
-          Explore Hobbies
-        </h2>
-        <p style={{
-          fontSize: 28,
-          fontFamily: 'Poppins, sans-serif',
-          color: colors.primaryText,
-          margin: 0,
-        }}>
-          in Kuwait
-        </p>
-      </div>
-
-      {/* Phone mockup */}
-      <div style={{
-        transform: `translateY(${phoneY}px)`,
-        opacity,
-      }}>
-        <PhoneMockup colors={colors}>
-          <div style={{ padding: 40 }}>
-            <HobiLogo size={80} color={colors.primaryOrange} />
-            <OrangeStripe style={{ marginTop: 20, marginBottom: 40 }} colors={colors} />
-            
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 15,
-            }}>
-              {categories.map((cat, idx) => (
-                <CategoryCard
-                  key={idx}
-                  icon={cat.icon}
-                  name={cat.name}
-                  frame={frame}
-                  delay={cat.delay}
-                  colors={colors}
-                  fps={fps}
-                />
-              ))}
-            </div>
-          </div>
-        </PhoneMockup>
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-// Services Scene
-const ServicesScene = ({ frame, colors, fps }) => {
-  const phoneProgress = spring({
+  // Title opacity
+  const titleOpacity = interpolate(
     frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const scale = interpolate(phoneProgress, [0, 1], [0.9, 1]);
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
-
-  return (
-    <AbsoluteFill style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      {/* Text */}
-      <div style={{
-        position: 'absolute',
-        top: 150,
-        left: 0,
-        right: 0,
-        textAlign: 'center',
-        opacity,
-      }}>
-        <h2 style={{
-          fontSize: 64,
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: 600,
-          color: colors.primaryOrange,
-          margin: 0,
-        }}>
-          Find Services
-        </h2>
-      </div>
-
-      {/* Service Card */}
-      <div style={{
-        transform: `scale(${scale})`,
-        opacity,
-      }}>
-        <ServiceCard colors={colors} frame={frame} fps={fps} />
-      </div>
-    </AbsoluteFill>
+    [0, 8],
+    [0, 1],
+    {
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
   );
-};
-
-// Features Scene
-const FeaturesScene = ({ frame, colors, fps }) => {
-  const progress = spring({
-    frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
-
-  const features = [
-    { icon: '🛒', title: 'Buy & Sell', delay: 10 },
-    { icon: '💳', title: 'Credits System', delay: 20 },
-    { icon: '✨', title: 'Suggest Hobbies', delay: 30 },
-  ];
 
   return (
-    <AbsoluteFill style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 80,
-    }}>
-      <div style={{
-        textAlign: 'center',
-        opacity,
-      }}>
-        <h2 style={{
-          fontSize: 64,
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: 600,
-          color: colors.primaryText,
-          marginBottom: 80,
-        }}>
-          Everything You Need
-        </h2>
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 80,
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 800 }}>
+        
+        {/* Section Title */}
+        <div
+          style={{
+            fontSize: 24,
+            fontFamily: 'Poppins, sans-serif',
+            fontWeight: 600,
+            color: colors.primaryOrange,
+            marginBottom: 50,
+            opacity: titleOpacity,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          CATEGORIES
+        </div>
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 50,
-        }}>
-          {features.map((feature, idx) => (
-            <FeatureItem
+        {/* Category Rows */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {categories.map((cat, idx) => (
+            <CategoryRow
               key={idx}
-              icon={feature.icon}
-              title={feature.title}
+              name={cat.name}
               frame={frame}
-              delay={feature.delay}
+              delay={cat.delay}
               colors={colors}
-              fps={fps}
             />
           ))}
         </div>
@@ -315,116 +149,164 @@ const FeaturesScene = ({ frame, colors, fps }) => {
   );
 };
 
-// CTA Scene
-const CTAScene = ({ frame, colors, fps }) => {
-  const progress = spring({
+// Scene 3: Core Actions
+const Scene3 = ({ frame, colors }) => {
+  const titleOpacity = interpolate(
     frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const scale = interpolate(progress, [0, 1], [0.9, 1]);
-  const opacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: 'clamp' });
-
-  // Pulsing animation for CTA button
-  const pulse = interpolate(
-    frame,
-    [40, 70, 100],
-    [1, 1.05, 1],
+    [0, 10],
+    [0, 1],
     {
-      extrapolateRight: 'wrap',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
     }
   );
 
+  const cards = [
+    { type: 'Listing', delay: 15 },
+    { type: 'Service', delay: 22 },
+  ];
+
   return (
-    <AbsoluteFill style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: `linear-gradient(135deg, ${colors.primaryOrange} 0%, ${colors.darkOrange} 100%)`,
-    }}>
-      <div style={{
-        transform: `scale(${scale})`,
-        opacity,
-        textAlign: 'center',
-        padding: 60,
-      }}>
-        <h1 style={{
-          fontSize: 72,
-          fontFamily: 'Poppins, sans-serif',
-          fontWeight: 600,
-          color: 'white',
-          marginBottom: 40,
-          lineHeight: 1.2,
-        }}>
-          Start Your<br/>Hobby Journey
-        </h1>
-
-        <p style={{
-          fontSize: 32,
-          fontFamily: 'Poppins, sans-serif',
-          color: 'rgba(255,255,255,0.9)',
-          marginBottom: 60,
-        }}>
-          Join Kuwait's hobby community
-        </p>
-
-        {/* CTA Button */}
-        <div style={{
-          transform: `scale(${pulse})`,
-          display: 'inline-block',
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            color: colors.primaryOrange,
-            padding: '30px 80px',
-            borderRadius: 50,
-            fontSize: 42,
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 80,
+      }}
+    >
+      <div style={{ textAlign: 'center', width: '100%' }}>
+        
+        {/* Headline */}
+        <h2
+          style={{
             fontFamily: 'Poppins, sans-serif',
+            fontSize: 64,
             fontWeight: 600,
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-          }}>
-            tryhobi.com
-          </div>
+            color: colors.primaryText,
+            lineHeight: 1.2,
+            margin: 0,
+            marginBottom: 60,
+            opacity: titleOpacity,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Buy. Sell. Offer services.
+        </h2>
+
+        {/* UI Cards */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 30,
+            marginTop: 40,
+          }}
+        >
+          {cards.map((card, idx) => (
+            <UICard
+              key={idx}
+              type={card.type}
+              frame={frame}
+              delay={card.delay}
+              colors={colors}
+            />
+          ))}
         </div>
       </div>
     </AbsoluteFill>
   );
 };
 
-// Outro Scene
-const OutroScene = ({ frame, colors, fps }) => {
-  const progress = spring({
+// Scene 4: CTA - Sharp, Confident
+const Scene4 = ({ frame, colors }) => {
+  const messageOpacity = interpolate(
     frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
+    [0, 10],
+    [0, 1],
+    {
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
-  const scale = interpolate(progress, [0, 1], [0.8, 1]);
-  const opacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: 'clamp' });
+  const urlOpacity = interpolate(
+    frame,
+    [12, 22],
+    [0, 1],
+    {
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
+
+  // Underline animation - precise, engineered
+  const underlineWidth = interpolate(
+    frame,
+    [25, 40],
+    [0, 100],
+    {
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
   return (
-    <AbsoluteFill style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: colors.lightPeach,
-    }}>
-      <div style={{
-        transform: `scale(${scale})`,
-        opacity,
-        textAlign: 'center',
-      }}>
-        <HobiLogoWithCircle size={280} colors={colors} />
-        <div style={{
-          marginTop: 40,
-          fontSize: 36,
-          fontFamily: 'Poppins, sans-serif',
-          color: colors.primaryText,
-        }}>
-          🇰🇼 Kuwait
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 80,
+      }}
+    >
+      <div style={{ textAlign: 'center' }}>
+        
+        {/* Message */}
+        <p
+          style={{
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: 36,
+            fontWeight: 400,
+            color: colors.primaryText,
+            lineHeight: 1.4,
+            margin: 0,
+            marginBottom: 50,
+            opacity: messageOpacity,
+          }}
+        >
+          Built for hobbyists in Kuwait.
+        </p>
+
+        {/* URL */}
+        <div
+          style={{
+            position: 'relative',
+            display: 'inline-block',
+            opacity: urlOpacity,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: 'Poppins, sans-serif',
+              fontSize: 52,
+              fontWeight: 600,
+              color: colors.accentOrange,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            tryhobi.com
+          </div>
+          
+          {/* Precise underline */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: -8,
+              left: 0,
+              width: `${underlineWidth}%`,
+              height: 3,
+              backgroundColor: colors.accentOrange,
+            }}
+          />
         </div>
       </div>
     </AbsoluteFill>
@@ -433,275 +315,207 @@ const OutroScene = ({ frame, colors, fps }) => {
 
 // ============ COMPONENTS ============
 
-// Hobi Logo Text
-const HobiLogo = ({ size, color }) => (
-  <div style={{
-    fontSize: size,
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 600,
-    color,
-    letterSpacing: '-2px',
-  }}>
-    Hobi
-  </div>
-);
-
-// Hobi Logo with Circles (from screenshots)
-const HobiLogoWithCircle = ({ size, colors }) => (
-  <div style={{
-    position: 'relative',
-    width: size,
-    height: size,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }}>
-    {/* Outer circle */}
-    <div style={{
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      border: `${size * 0.08}px solid ${colors.darkOrange}`,
-    }} />
-    {/* Inner circle */}
-    <div style={{
-      position: 'absolute',
-      width: '90%',
-      height: '90%',
-      borderRadius: '50%',
-      border: `${size * 0.08}px solid ${colors.primaryOrange}`,
-    }} />
-    {/* Logo text */}
-    <HobiLogo size={size * 0.35} color={colors.primaryOrange} />
-  </div>
-);
-
-// Orange stripe (from screenshots)
-const OrangeStripe = ({ style, colors }) => (
-  <div style={{
-    width: '100%',
-    height: 8,
-    background: `linear-gradient(90deg, ${colors.darkOrange} 0%, ${colors.primaryOrange} 50%, #FFA366 100%)`,
-    borderRadius: 4,
-    ...style,
-  }} />
-);
-
-// Phone Mockup
-const PhoneMockup = ({ children, colors }) => (
-  <div style={{
-    width: 400,
-    height: 800,
-    backgroundColor: colors.lightPeach,
-    borderRadius: 40,
-    border: `8px solid ${colors.primaryText}`,
-    boxShadow: '0 30px 80px rgba(0,0,0,0.3)',
-    overflow: 'hidden',
-    position: 'relative',
-  }}>
-    {/* Notch */}
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 150,
-      height: 30,
-      backgroundColor: colors.primaryText,
-      borderRadius: '0 0 20px 20px',
-    }} />
-    
-    {/* Content */}
-    <div style={{
-      marginTop: 30,
-      height: 'calc(100% - 30px)',
-      overflow: 'hidden',
-    }}>
-      {children}
-    </div>
-  </div>
-);
-
-// Category Card
-const CategoryCard = ({ icon, name, frame, delay, colors, fps }) => {
-  const progress = spring({
-    frame: Math.max(0, frame - delay),
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const translateX = interpolate(progress, [0, 1], [-50, 0]);
-  const opacity = interpolate(progress, [0, 1], [0, 1]);
-
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      backgroundColor: colors.cardPink,
-      padding: '15px 20px',
-      borderRadius: 16,
-      transform: `translateX(${translateX}px)`,
-      opacity,
-    }}>
-      <span style={{ fontSize: 32, marginRight: 15 }}>{icon}</span>
-      <span style={{
-        fontSize: 20,
-        fontFamily: 'Poppins, sans-serif',
-        fontWeight: 400,
-        color: colors.primaryText,
-      }}>
-        {name}
-      </span>
-    </div>
-  );
-};
-
-// Service Card (inspired by screenshots)
-const ServiceCard = ({ colors, frame, fps }) => {
-  const progress = spring({
+// Category Row - Clean, Precise UI
+const CategoryRow = ({ name, frame, delay, colors }) => {
+  // Content slides in from left - fast, linear
+  const translateX = interpolate(
     frame,
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
+    [delay, delay + 12],
+    [-60, 0],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
-  const scale = interpolate(progress, [0, 1], [0.9, 1]);
+  const opacity = interpolate(
+    frame,
+    [delay, delay + 12],
+    [0, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
+
+  // Accent bar animation - precise timing
+  const barWidth = interpolate(
+    frame,
+    [delay, delay + 15],
+    [0, 100],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
   return (
-    <div style={{
-      width: 500,
-      backgroundColor: 'white',
-      borderRadius: 30,
-      border: `3px solid ${colors.greenAccent}`,
-      padding: 40,
-      transform: `scale(${scale})`,
-      boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
-    }}>
-      {/* Service badge */}
-      <div style={{
-        display: 'inline-block',
-        backgroundColor: colors.greenAccent,
-        color: 'white',
-        padding: '10px 25px',
-        borderRadius: 25,
-        fontSize: 20,
-        fontFamily: 'Poppins, sans-serif',
-        fontWeight: 500,
-        marginBottom: 30,
-      }}>
-        🔧 Service
-      </div>
+    <div
+      style={{
+        position: 'relative',
+        paddingLeft: 30,
+      }}
+    >
+      {/* Accent Bar */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          width: `${barWidth}%`,
+          maxWidth: 4,
+          height: '70%',
+          backgroundColor: colors.primaryOrange,
+        }}
+      />
 
-      <HobiLogo size={80} color={colors.primaryOrange} />
-      <OrangeStripe style={{ marginTop: 20, marginBottom: 30 }} colors={colors} />
-
-      <h3 style={{
-        fontSize: 32,
-        fontFamily: 'Poppins, sans-serif',
-        fontWeight: 600,
-        color: colors.primaryText,
-        marginBottom: 15,
-      }}>
-        Hobi 3D Printing<br/>Services
-      </h3>
-
-      <div style={{
-        fontSize: 20,
-        fontFamily: 'Poppins, sans-serif',
-        color: colors.mutedText,
-        marginBottom: 20,
-      }}>
-        📍 Kuwait City
-      </div>
-
-      <div style={{
-        display: 'flex',
-        gap: 10,
-        flexWrap: 'wrap',
-      }}>
-        <Tag text="Custom Prints" colors={colors} />
-        <Tag text="3D Modeling" colors={colors} />
-        <Tag text="+3" colors={colors} />
+      {/* Category Name */}
+      <div
+        style={{
+          fontFamily: 'Poppins, sans-serif',
+          fontSize: 32,
+          fontWeight: 400,
+          color: colors.primaryText,
+          letterSpacing: '-0.01em',
+          transform: `translateX(${translateX}px)`,
+          opacity,
+        }}
+      >
+        {name}
       </div>
     </div>
   );
 };
 
-// Tag component
-const Tag = ({ text, colors }) => (
-  <div style={{
-    backgroundColor: colors.cardPink,
-    color: colors.greenAccent,
-    padding: '8px 18px',
-    borderRadius: 20,
-    fontSize: 16,
-    fontFamily: 'Poppins, sans-serif',
-    fontWeight: 500,
-  }}>
-    {text}
-  </div>
-);
+// UI Card - Abstract Product Interface
+const UICard = ({ type, frame, delay, colors }) => {
+  const scale = interpolate(
+    frame,
+    [delay, delay + 12],
+    [0.92, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
-// Feature Item
-const FeatureItem = ({ icon, title, frame, delay, colors, fps }) => {
-  const progress = spring({
-    frame: Math.max(0, frame - delay),
-    fps,
-    config: {
-      damping: 100,
-    },
-  });
+  const opacity = interpolate(
+    frame,
+    [delay, delay + 12],
+    [0, 1],
+    {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.ease),
+    }
+  );
 
-  const translateY = interpolate(progress, [0, 1], [50, 0]);
-  const opacity = interpolate(progress, [0, 1], [0, 1]);
+  // Accent color based on type
+  const accentColor = type === 'Service' ? '#4CAF50' : colors.primaryOrange;
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 30,
-      transform: `translateY(${translateY}px)`,
-      opacity,
-    }}>
-      <div style={{
-        fontSize: 64,
-        backgroundColor: colors.cardPink,
-        width: 100,
-        height: 100,
-        borderRadius: 25,
+    <div
+      style={{
+        width: 320,
+        height: 420,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        border: `2px solid ${colors.softHighlight}`,
+        padding: 30,
+        transform: `scale(${scale})`,
+        opacity,
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        {icon}
+        flexDirection: 'column',
+        gap: 20,
+      }}
+    >
+      {/* Type Badge */}
+      <div
+        style={{
+          display: 'inline-block',
+          alignSelf: 'flex-start',
+          backgroundColor: accentColor,
+          color: 'white',
+          padding: '6px 16px',
+          borderRadius: 6,
+          fontSize: 14,
+          fontFamily: 'Poppins, sans-serif',
+          fontWeight: 600,
+          letterSpacing: '0.02em',
+        }}
+      >
+        {type.toUpperCase()}
       </div>
-      <div style={{
-        fontSize: 42,
-        fontFamily: 'Poppins, sans-serif',
-        fontWeight: 600,
-        color: colors.primaryText,
-      }}>
-        {title}
+
+      {/* Abstract Content Blocks */}
+      <div
+        style={{
+          width: '100%',
+          height: 160,
+          backgroundColor: colors.softHighlight,
+          borderRadius: 8,
+        }}
+      />
+
+      {/* Text Lines */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div
+          style={{
+            width: '85%',
+            height: 14,
+            backgroundColor: colors.softHighlight,
+            borderRadius: 4,
+          }}
+        />
+        <div
+          style={{
+            width: '65%',
+            height: 14,
+            backgroundColor: colors.softHighlight,
+            borderRadius: 4,
+          }}
+        />
+        <div
+          style={{
+            width: '75%',
+            height: 14,
+            backgroundColor: colors.softHighlight,
+            borderRadius: 4,
+          }}
+        />
+      </div>
+
+      {/* Bottom Info */}
+      <div
+        style={{
+          marginTop: 'auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            width: 80,
+            height: 12,
+            backgroundColor: colors.softHighlight,
+            borderRadius: 4,
+          }}
+        />
+        <div
+          style={{
+            width: 40,
+            height: 12,
+            backgroundColor: colors.softHighlight,
+            borderRadius: 4,
+          }}
+        />
       </div>
     </div>
   );
 };
-
-// Animated Circle (background decoration)
-const AnimatedCircle = ({ size, top, left, rotation, opacity }) => (
-  <div style={{
-    position: 'absolute',
-    top,
-    left,
-    width: size,
-    height: size,
-    borderRadius: '50%',
-    backgroundColor: 'white',
-    opacity,
-    transform: `rotate(${rotation}deg)`,
-  }} />
-);
